@@ -24,16 +24,12 @@ if ($action === 'save') {
     $host  = preg_replace('#^https?://#i', '', trim((string) ($in['host'] ?? '')));
     $host  = preg_replace('#/.*$#', '', (string) $host);
     $proto = ($in['proto'] ?? 'http') === 'https' ? 'https' : 'http';
-    $user  = trim((string) ($in['user'] ?? ''));
 
     if ($name === '' || mb_strlen($name) > 80) {
         json_out(['error' => 'Nama perangkat wajib diisi (maksimal 80 karakter).'], 422);
     }
     if (!preg_match('/^[A-Za-z0-9.\-]+(:\d{1,5})?$/', (string) $host)) {
         json_out(['error' => 'IP Address harus berformat 157.20.207.3:3011 atau nama host.'], 422);
-    }
-    if (mb_strlen($user) > 64) {
-        json_out(['error' => 'Username terlalu panjang (maksimal 64 karakter).'], 422);
     }
 
     if ($id > 0) {
@@ -42,11 +38,11 @@ if ($action === 'save') {
         if (!$st->fetch()) {
             json_out(['error' => 'Perangkat tidak ditemukan.'], 404);
         }
-        $pdo->prepare('UPDATE devices SET name = ?, host = ?, proto = ?, username = ? WHERE id = ?')
-            ->execute([$name, $host, $proto, $user, $id]);
+        $pdo->prepare('UPDATE devices SET name = ?, host = ?, proto = ? WHERE id = ?')
+            ->execute([$name, $host, $proto, $id]);
     } else {
-        $pdo->prepare('INSERT INTO devices (name, host, proto, username, created_at) VALUES (?, ?, ?, ?, ?)')
-            ->execute([$name, $host, $proto, $user, time()]);
+        $pdo->prepare('INSERT INTO devices (name, host, proto, created_at) VALUES (?, ?, ?, ?)')
+            ->execute([$name, $host, $proto, time()]);
     }
     json_out(['ok' => true]);
 }

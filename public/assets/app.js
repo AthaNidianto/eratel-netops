@@ -41,7 +41,7 @@
     empty.hidden = shown > 0;
     if (!cards.length) {
       $('#empty-title').textContent = 'Belum ada perangkat';
-      $('#empty-text').textContent = 'Tambahkan CRS pertama dengan nama, IP:port, dan username WebFig-nya.';
+      $('#empty-text').textContent = 'Tambahkan CRS pertama dengan nama dan IP:port WebFig-nya.';
     } else {
       $('#empty-title').textContent = 'Tidak ada hasil';
       $('#empty-text').textContent = 'Tidak ada perangkat yang cocok dengan "' + $('#q').value.trim() + '".';
@@ -63,7 +63,6 @@
     $('#f-name').value = d ? d.name : '';
     $('#f-host').value = d ? d.host : '';
     $('#f-proto').value = d && d.proto === 'https' ? 'https' : 'http';
-    $('#f-user').value = d ? d.user : '';
     $('#f-err').hidden = true;
     var del = $('#f-del');
     del.hidden = !d; del.textContent = 'Hapus'; del.classList.remove('armed');
@@ -86,8 +85,7 @@
     api({
       action: 'save',
       id: editing ? Number(editing.dataset.id) : 0,
-      name: $('#f-name').value, host: $('#f-host').value, proto: $('#f-proto').value,
-      user: $('#f-user').value
+      name: $('#f-name').value, host: $('#f-host').value, proto: $('#f-proto').value
     }).then(function () { location.reload(); })
       .catch(function (err) { formError(err.message); btn.disabled = false; });
   });

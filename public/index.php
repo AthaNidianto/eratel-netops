@@ -2,7 +2,7 @@
 declare(strict_types=1);
 require __DIR__ . '/../app/bootstrap.php';
 
-$devices = db()->query('SELECT id, name, host, proto, username FROM devices ORDER BY id')->fetchAll();
+$devices = db()->query('SELECT id, name, host, proto FROM devices ORDER BY id')->fetchAll();
 
 page_start('Eratel NetOps');
 ?>
@@ -28,15 +28,13 @@ page_start('Eratel NetOps');
                data-name="<?= e($d['name']) ?>"
                data-host="<?= e($d['host']) ?>"
                data-proto="<?= e($d['proto']) ?>"
-               data-user="<?= e($d['username']) ?>"
-               data-search="<?= e(strtolower($d['name'] . ' ' . $d['host'] . ' ' . $d['username'])) ?>">
+               data-search="<?= e(strtolower($d['name'] . ' ' . $d['host'])) ?>">
         <div class="head">
           <h2><?= e($d['name']) ?></h2>
           <span class="chip<?= $d['proto'] === 'https' ? ' tls' : '' ?>"><?= $d['proto'] === 'https' ? 'HTTPS' : 'HTTP' ?></span>
         </div>
         <div class="fields">
           <dl class="field"><dt>IP Address</dt><dd><?= e($d['host']) ?></dd></dl>
-          <dl class="field"><dt>Username</dt><dd><?= e($d['username'] ?: '-') ?></dd></dl>
         </div>
         <div class="acts">
           <a class="btn go" href="<?= e(webfig_url($d)) ?>" target="_blank" rel="noopener noreferrer">
@@ -53,7 +51,7 @@ page_start('Eratel NetOps');
 
   <div id="empty" class="empty" <?= $devices ? 'hidden' : '' ?>>
     <strong id="empty-title"><?= $devices ? 'Tidak ada hasil' : 'Belum ada perangkat' ?></strong>
-    <span id="empty-text">Tambahkan CRS pertama dengan nama, IP:port, dan username WebFig-nya.</span>
+    <span id="empty-text">Tambahkan CRS pertama dengan nama dan IP:port WebFig-nya.</span>
   </div>
 
 </main>
@@ -67,7 +65,6 @@ page_start('Eratel NetOps');
       <div class="row"><label class="l" for="f-proto">Protokol</label>
         <select id="f-proto" class="in"><option value="http">HTTP</option><option value="https">HTTPS</option></select></div>
     </div>
-    <div class="row"><label class="l" for="f-user">Username</label><input id="f-user" class="in mono" maxlength="64" placeholder="teknisi"></div>
     <div id="f-err" class="note err" hidden></div>
     <div class="mfoot">
       <button id="f-del" class="btn danger" type="button" hidden>Hapus</button>

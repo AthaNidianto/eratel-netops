@@ -53,17 +53,16 @@ function migrate(PDO $pdo): void
         name TEXT NOT NULL,
         host TEXT NOT NULL,
         proto TEXT NOT NULL DEFAULT "http",
-        username TEXT NOT NULL DEFAULT "",
         created_at INTEGER NOT NULL
     )');
 
     // Isi awal daftar CRS (opsional, hanya jika tabel kosong)
     if (getenv('SEED_CRS') === '1'
         && (int) $pdo->query('SELECT COUNT(*) FROM devices')->fetchColumn() === 0) {
-        $st = $pdo->prepare('INSERT INTO devices (name, host, proto, username, created_at) VALUES (?, ?, ?, ?, ?)');
+        $st = $pdo->prepare('INSERT INTO devices (name, host, proto, created_at) VALUES (?, ?, ?, ?)');
         $t = time();
         foreach (require __DIR__ . '/seed.php' as $i => $d) {
-            $st->execute([$d[0], $d[1], 'http', $d[2], $t + $i]);
+            $st->execute([$d[0], $d[1], 'http', $t + $i]);
         }
     }
 }
