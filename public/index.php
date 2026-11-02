@@ -1,10 +1,8 @@
 <?php
 declare(strict_types=1);
 require __DIR__ . '/../app/bootstrap.php';
-require_login();
 
-// Password perangkat sengaja tidak dibaca di sini; hanya dikirim saat tombol Connect ditekan.
-$devices = db()->query('SELECT id, name, host, proto, username, (password_enc <> "") AS has_pass FROM devices ORDER BY id')->fetchAll();
+$devices = db()->query('SELECT id, name, host, proto, username FROM devices ORDER BY id')->fetchAll();
 
 page_start('Eratel NetOps');
 ?>
@@ -31,7 +29,6 @@ page_start('Eratel NetOps');
                data-host="<?= e($d['host']) ?>"
                data-proto="<?= e($d['proto']) ?>"
                data-user="<?= e($d['username']) ?>"
-               data-haspass="<?= $d['has_pass'] ? '1' : '0' ?>"
                data-search="<?= e(strtolower($d['name'] . ' ' . $d['host'] . ' ' . $d['username'])) ?>">
         <div class="head">
           <h2><?= e($d['name']) ?></h2>
@@ -42,10 +39,10 @@ page_start('Eratel NetOps');
           <dl class="field"><dt>Username</dt><dd><?= e($d['username'] ?: '-') ?></dd></dl>
         </div>
         <div class="acts">
-          <button class="btn go js-connect" type="button">
+          <a class="btn go" href="<?= e(webfig_url($d)) ?>" target="_blank" rel="noopener noreferrer">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg>
             Connect WebFig
-          </button>
+          </a>
           <button class="btn icon js-edit" type="button" title="Edit" aria-label="Edit <?= e($d['name']) ?>">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
           </button>
@@ -56,13 +53,9 @@ page_start('Eratel NetOps');
 
   <div id="empty" class="empty" <?= $devices ? 'hidden' : '' ?>>
     <strong id="empty-title"><?= $devices ? 'Tidak ada hasil' : 'Belum ada perangkat' ?></strong>
-    <span id="empty-text">Tambahkan CRS pertama dengan nama, IP:port, username dan password WebFig-nya.</span>
+    <span id="empty-text">Tambahkan CRS pertama dengan nama, IP:port, dan username WebFig-nya.</span>
   </div>
 
-  <p class="foot">
-    Connect WebFig membuka WebFig di tab baru dan mengisi login otomatis lewat userscript Tampermonkey.
-    <a href="eratel-webfig-autologin.user.js">Pasang userscript</a>. Tanpa userscript, WebFig tetap terbuka dan login dilakukan manual.
-  </p>
 </main>
 
 <div id="modal" class="scrim" hidden>
@@ -75,11 +68,6 @@ page_start('Eratel NetOps');
         <select id="f-proto" class="in"><option value="http">HTTP</option><option value="https">HTTPS</option></select></div>
     </div>
     <div class="row"><label class="l" for="f-user">Username</label><input id="f-user" class="in mono" maxlength="64" placeholder="teknisi"></div>
-    <div class="row"><label class="l" for="f-pass">Password</label>
-      <div class="pw"><input id="f-pass" class="in mono" type="password" autocomplete="new-password"><button id="f-show" type="button">Tampilkan</button></div>
-    </div>
-    <p class="hint" id="f-hint"></p>
-    <label class="check" id="f-nopass-row" hidden><input id="f-nopass" type="checkbox"> Hapus password yang tersimpan</label>
     <div id="f-err" class="note err" hidden></div>
     <div class="mfoot">
       <button id="f-del" class="btn danger" type="button" hidden>Hapus</button>

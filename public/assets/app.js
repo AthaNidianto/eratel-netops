@@ -1,13 +1,12 @@
 (function () {
   'use strict';
   var $ = function (s) { return document.querySelector(s); };
-  var csrf = document.querySelector('meta[name="csrf"]').content;
   var editing = null, delTimer = null;
 
   function api(body) {
     return fetch('api.php', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'netops' },
       body: JSON.stringify(body),
       credentials: 'same-origin'
     }).then(function (r) {
@@ -42,7 +41,7 @@
     empty.hidden = shown > 0;
     if (!cards.length) {
       $('#empty-title').textContent = 'Belum ada perangkat';
-      $('#empty-text').textContent = 'Tambahkan CRS pertama dengan nama, IP:port, username dan password WebFig-nya.';
+      $('#empty-text').textContent = 'Tambahkan CRS pertama dengan nama, IP:port, dan username WebFig-nya.';
     } else {
       $('#empty-title').textContent = 'Tidak ada hasil';
       $('#empty-text').textContent = 'Tidak ada perangkat yang cocok dengan "' + $('#q').value.trim() + '".';
@@ -56,24 +55,6 @@
     }
   });
 
-  /* ---------- connect ---------- */
-  document.addEventListener('click', function (e) {
-    var btn = e.target.closest('.js-connect');
-    if (!btn) return;
-    var card = btn.closest('.card');
-    // tab dibuka sekarang (dari klik) supaya tidak diblokir popup blocker, URL diisi setelah server menjawab
-    var w = window.open('about:blank', '_blank');
-    try { if (w) w.opener = null; } catch (x) {}
-    btn.disabled = true;
-    api({ action: 'connect', id: Number(card.dataset.id) }).then(function (j) {
-      if (w) { w.location.href = j.url; }
-      else { flash('Browser memblokir tab baru. Izinkan popup untuk situs ini.', true); }
-    }).catch(function (err) {
-      if (w) w.close();
-      flash(err.message, true);
-    }).then(function () { btn.disabled = false; });
-  });
-
   /* ---------- modal ---------- */
   function openModal(card) {
     editing = card || null;
@@ -83,14 +64,6 @@
     $('#f-host').value = d ? d.host : '';
     $('#f-proto').value = d && d.proto === 'https' ? 'https' : 'http';
     $('#f-user').value = d ? d.user : '';
-    $('#f-pass').value = '';
-    $('#f-pass').type = 'password';
-    $('#f-show').textContent = 'Tampilkan';
-    $('#f-nopass').checked = false;
-    $('#f-nopass-row').hidden = !(d && d.haspass === '1');
-    $('#f-hint').textContent = d
-      ? (d.haspass === '1' ? 'Password tersimpan terenkripsi. Kosongkan jika tidak ingin mengubahnya.' : 'Belum ada password tersimpan.')
-      : 'Kosongkan jika WebFig memang tanpa password.';
     $('#f-err').hidden = true;
     var del = $('#f-del');
     del.hidden = !d; del.textContent = 'Hapus'; del.classList.remove('armed');
@@ -107,12 +80,6 @@
     var b = e.target.closest('.js-edit');
     if (b) openModal(b.closest('.card'));
   });
-  $('#f-show').addEventListener('click', function () {
-    var p = $('#f-pass'), show = p.type === 'password';
-    p.type = show ? 'text' : 'password';
-    this.textContent = show ? 'Sembunyikan' : 'Tampilkan';
-  });
-
   $('#form').addEventListener('submit', function (e) {
     e.preventDefault();
     var btn = $('#f-save'); btn.disabled = true; formError('');
@@ -120,7 +87,7 @@
       action: 'save',
       id: editing ? Number(editing.dataset.id) : 0,
       name: $('#f-name').value, host: $('#f-host').value, proto: $('#f-proto').value,
-      user: $('#f-user').value, pass: $('#f-pass').value, nopass: $('#f-nopass').checked
+      user: $('#f-user').value
     }).then(function () { location.reload(); })
       .catch(function (err) { formError(err.message); btn.disabled = false; });
   });

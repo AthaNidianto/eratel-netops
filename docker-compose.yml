@@ -1,0 +1,15 @@
+services:
+  netops:
+    build: .
+    container_name: eratel-netops
+    restart: unless-stopped
+    ports:
+      - "${HOST_PORT:-8080}:80"
+    environment:
+      SEED_CRS: ${SEED_CRS:-0}
+      TZ: Asia/Jakarta
+    volumes:
+      - netops-data:/var/www/data
+
+volumes:
+  netops-data:
