@@ -1,15 +1,13 @@
 services:
-  netops:
+  php:                       # PHP-FPM saja
     build: .
-    container_name: eratel-netops
-    restart: unless-stopped
-    ports:
-      - "${HOST_PORT:-8080}:80"
-    environment:
-      SEED_CRS: ${SEED_CRS:-0}
-      TZ: Asia/Jakarta
-    volumes:
-      - netops-data:/var/www/data
+    container_name: crs-man
+    volumes: [./public:/var/www/html:ro, ./app:/var/www/app:ro, ./data:/var/www/data]
+    networks: [internal]
 
-volumes:
-  netops-data:
+  crs-man-web:                # nginx:alpine
+    image: nginx:alpine
+    container_name: crs-man-web
+    volumes: [./nginx.conf:/etc/nginx/conf.d/default.conf:ro, ./public:/var/www/html:ro]
+    networks: [internal, web]
+    ports: ["127.0.0.1:${HOST_PORT: -55638}:80"]

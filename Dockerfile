@@ -1,4 +1,4 @@
-FROM php:8.3-fpm-alpine
+FROM php:8.4-fpm-alpine
 
 # nginx + php-fpm dalam satu container. Build gagal lebih awal jika ekstensi wajib tidak ada.
 RUN apk add --no-cache nginx \
