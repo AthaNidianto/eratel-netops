@@ -4,7 +4,7 @@ require __DIR__ . '/../app/bootstrap.php';
 
 $devices = db()->query('SELECT id, name, host, proto FROM devices ORDER BY id')->fetchAll();
 
-page_start('Eratel NetOps');
+page_start('Eratel CRS');
 ?>
 <main class="wrap main">
   <div class="top-actions">
@@ -72,4 +72,4 @@ page_start('Eratel NetOps');
     </div>
   </form>
 </div>
-<?php page_end('app.js'); ?>
+<?php page_end('app.js'); ?>  
